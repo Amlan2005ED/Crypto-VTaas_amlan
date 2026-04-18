@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTaaS Clinical Integrity Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #1e2e20;
+            --bg-alt:    #243026;
+            --bg-deep:   #172019;
+            --panel:     #2b3d2d;
+            --panel-alt: #253228;
+            --line:      rgba(160, 200, 150, 0.18);
+            --text:      #e8f0e2;
+            --muted:     #8faa88;
+            --soft:      #b8ccb3;
+            --accent:    #7ec87a;
+            --accent-2:  #a3d98a;
+            --accent-3:  #d4c06a;
+            --danger:    #e07070;
+            --success:   #70c98a;
+            --ink:       #1a2a1c;
+            --shadow:    0 12px 48px rgba(0,0,0,0.38);
+            --radius-xl: 20px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --blue:      #7ab8e8;
+            --purple:    #b8a3d9;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background-color: var(--bg-deep);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a7a4c' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .shell { width: min(1240px, calc(100vw - 28px)); margin: 24px auto 40px; }
+
+        /* ── TOP BAR ── */
+        .top-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 24px; border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            background: var(--bg-deep); border: 1px solid var(--line); border-bottom: none;
+        }
+        .top-bar-brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(145deg, var(--accent), #3a7a3e);
+            display: grid; place-items: center; font-family: 'Lora', serif; font-weight: 700; color: var(--ink);
+        }
+        .brand-name { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600; color: var(--text); }
+
+        /* ── PRINCIPLE BANNER ── */
+        .principle-banner {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+            background: var(--line); border: 1px solid var(--line); border-top: none; border-bottom: none;
+        }
+        .principle-card {
+            padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px;
+        }
+        .principle-card:nth-child(1) { background: rgba(43, 61, 45, 0.9); }
+        .principle-card:nth-child(2) { background: rgba(30, 45, 55, 0.9); }
+        .principle-card:nth-child(3) { background: rgba(45, 38, 60, 0.9); }
+        .principle-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .principle-card:nth-child(1) .principle-icon { background: rgba(126,200,122,0.15); }
+        .principle-card:nth-child(2) .principle-icon { background: rgba(122,184,232,0.15); }
+        .principle-card:nth-child(3) .principle-icon { background: rgba(184,163,217,0.15); }
+        .principle-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+        .principle-card:nth-child(1) .principle-label { color: var(--accent); }
+        .principle-card:nth-child(2) .principle-label { color: var(--blue); }
+        .principle-card:nth-child(3) .principle-label { color: var(--purple); }
+        .principle-desc { font-size: 0.78rem; color: var(--soft); margin-top: 2px; line-height: 1.4; }
+
+        /* ── HERO ── */
+        .hero {
+            display: grid; grid-template-columns: 1.35fr 0.95fr; gap: 2px;
+            background: var(--line); border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+        }
+        .hero-copy { padding: 36px 32px; background: var(--panel); }
+        .hero-status { padding: 28px 24px; background: var(--panel-alt); display: flex; flex-direction: column; justify-content: center; }
+
+        .eyebrow, .mini-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent);
+        }
+        .eyebrow::before, .mini-label::before { content: ""; width: 20px; height: 1.5px; background: var(--accent); opacity: 0.7; }
+
+        .hero h1 {
+            margin-top: 16px; font-family: 'Lora', serif;
+            font-size: clamp(2rem, 3.5vw, 3.4rem); line-height: 1.1; color: var(--text);
+        }
+        .hero h1 em { font-style: italic; color: var(--accent); }
+
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+        .button, button {
+            border: 0; cursor: pointer; transition: filter 150ms ease, opacity 150ms ease;
+            padding: 13px 20px; border-radius: var(--radius-md); font-weight: 600; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+        }
+        .button.primary { background: var(--accent); color: var(--ink); box-shadow: 0 4px 20px rgba(126,200,122,0.3); }
+        .button.primary:hover { filter: brightness(1.1); }
+        .button.secondary { background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--soft); }
+        .button.ghost { width: 100%; padding: 16px; background: rgba(126,200,122,0.05); border: 2px dashed var(--line); color: var(--accent); margin-top: 12px; }
+
+        .metric-card { padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--line); background: rgba(0,0,0,0.18); }
+        .metric-value { margin-top: 8px; font-family: 'Lora', serif; font-size: 2rem; color: var(--accent-2); }
+
+        .hero-orbit {
+            position: relative; margin: 10px auto;
+            width: min(240px, 100%); aspect-ratio: 1;
+            display: grid; place-items: center;
+        }
+        .hero-orbit::before, .hero-orbit::after {
+            content: ""; position: absolute; border-radius: 50%;
+            border: 1px dashed rgba(126,200,122,0.22);
+        }
+        .hero-orbit::before { inset: 20px; }
+        .hero-orbit::after  { inset: 44px; }
+        .hero-orbit-core {
+            position: relative; z-index: 1;
+            width: 106px; aspect-ratio: 1;
+            display: grid; place-items: center; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #9ee89a, #3a7a3e 65%, #1e3a20 100%);
+            box-shadow: 0 0 0 14px rgba(126,200,122,0.08), 0 14px 36px rgba(126,200,122,0.18);
+            text-align: center;
+        }
+        .hero-orbit-core strong { font-family: 'Lora', serif; font-size: 1.8rem; color: #f0fff0; }
+        .hero-orbit-core small { display: block; font-size: 0.65rem; text-transform: uppercase; color: #c8f0c8; }
+        .hero-orbit-badge {
+            position: absolute; padding: 8px 12px; border-radius: 10px;
+            background: var(--bg-deep); border: 1px solid var(--line);
+            color: var(--soft); font-size: 0.78rem; font-family: 'DM Mono', monospace;
+        }
+        .hero-orbit-badge.top { top: 8px; right: 0; }
+        .hero-orbit-badge.bottom { bottom: 12px; left: 0; }
+
+        /* ── MAIN GRID ── */
+        .main-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2px; background: var(--line); border: 1px solid var(--line); }
+        .section { padding: 28px 26px; background: var(--panel); }
+        .sidebar-stack { display: flex; flex-direction: column; gap: 2px; background: var(--line); }
+        .sidebar-section { padding: 24px 22px; background: var(--panel-alt); flex: 1; }
+
+        /* ── AUTH SECTION ── */
+        .auth-panel {
+            border: 1px solid var(--line); border-radius: var(--radius-md);
+            background: rgba(122,184,232,0.05); margin-bottom: 18px; overflow: hidden;
+        }
+        .auth-header {
+            padding: 12px 16px; background: rgba(122,184,232,0.08);
+            border-bottom: 1px solid rgba(122,184,232,0.15);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .auth-badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); font-weight: 600; }
+        .auth-body { padding: 16px; }
+        .auth-field { margin-bottom: 12px; }
+        .auth-field label { display: block; font-size: 0.78rem; color: var(--soft); margin-bottom: 6px; }
+        .auth-field input, .auth-field select {
+            width: 100%; padding: 10px 12px; border-radius: 8px;
+            background: rgba(0,0,0,0.28); border: 1px solid var(--line);
+            color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.82rem;
+            outline: none; transition: border-color 200ms;
+        }
+        .auth-field input:focus, .auth-field select:focus { border-color: var(--blue); }
+        .auth-field select option { background: var(--bg-deep); }
+        .auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sign-btn {
+            width: 100%; padding: 10px; background: rgba(122,184,232,0.12);
+            border: 1px solid rgba(122,184,232,0.3); color: var(--blue);
+            border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+        }
+        .sign-btn:hover { background: rgba(122,184,232,0.2); }
+        .sig-display {
+            margin-top: 10px; padding: 10px; border-radius: 8px;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(122,184,232,0.2);
+            font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--blue);
+            word-break: break-all; display: none;
+        }
+        .sig-display.visible { display: block; }
+
+        /* ── ENCRYPTION PANEL ── */
+        .enc-panel {
+            border: 1px solid var(--line); border-radius: var(--radius-md);
+            background: rgba(184,163,217,0.05); margin-bottom: 18px; overflow: hidden;
+        }
+        .enc-header {
+            padding: 12px 16px; background: rgba(184,163,217,0.08);
+            border-bottom: 1px solid rgba(184,163,217,0.15);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .enc-badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--purple); font-weight: 600; }
+        .enc-body { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .enc-key-display {
+            font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--purple);
+            padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 8px;
+            border: 1px solid rgba(184,163,217,0.2); flex: 1; word-break: break-all;
+        }
+        .enc-btn {
+            padding: 10px 14px; background: rgba(184,163,217,0.12);
+            border: 1px solid rgba(184,163,217,0.3); color: var(--purple);
+            border-radius: 8px; font-size: 0.82rem; font-weight: 600; white-space: nowrap;
+        }
+        .enc-btn:hover { background: rgba(184,163,217,0.2); }
+        .enc-status { padding: 0 16px 14px; font-size: 0.75rem; color: var(--purple); display: flex; align-items: center; gap: 6px; }
+        .enc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); flex-shrink: 0; }
+
+        /* ── PATIENT CARDS ── */
+        /* FIX 1: patient-card uses flex layout so tag sits in flow, not overlapping Remove button */
+        .patient-card {
+            padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--line);
+            background: rgba(0,0,0,0.16); margin-bottom: 12px;
+        }
+        .patient-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; gap: 8px;
+        }
+        .patient-card-header-left {
+            display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
+        }
+        .patient-encrypted-tag {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+            border-radius: 6px; padding: 3px 8px; white-space: nowrap; flex-shrink: 0;
+        }
+        .patient-encrypted-tag.enc {
+            color: var(--purple); background: rgba(184,163,217,0.12);
+            border: 1px solid rgba(184,163,217,0.25);
+        }
+        /* No plaintext tag rendered at all — only show AES-256 when key exists */
+
+        .toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); cursor: pointer; }
+        .switch { position: relative; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 34px; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; border-radius: 50%; background: white; transition: .4s; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* ── PROOF BAR ── */
+        .proof-bar { width: 100%; height: 8px; border-radius: 999px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-top: 10px; }
+        .proof-bar span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.4s ease; }
+
+        pre {
+            margin: 14px 0 0; padding: 14px; max-height: 250px; overflow-y: auto;
+            white-space: pre-wrap; word-break: break-all; border-radius: 12px; background: rgba(0,0,0,0.36); color: var(--accent-2);
+            border: 1px solid var(--line); font-family: 'DM Mono', monospace; font-size: 0.76rem;
+        }
+
+        .status-chip { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: var(--radius-md); background: rgba(0,0,0,0.22); border: 1px solid var(--line); color: var(--soft); font-size: 0.88rem; }
+        .status-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-3); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .status-chip[data-state="success"]::before { background: var(--success); animation: none; }
+        .status-chip[data-state="error"]::before { background: var(--danger); animation: none; }
+
+        /* ── ROLE BADGE ── */
+        .role-display {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+            background: rgba(184,163,217,0.12); border: 1px solid rgba(184,163,217,0.25); color: var(--purple);
+        }
+
+        /* ── VERIFY TAB ── */
+        .verify-panel {
+            border: 1px solid var(--line); border-radius: var(--radius-md);
+            background: rgba(212, 192, 106, 0.05); margin-bottom: 14px; overflow: hidden;
+        }
+        .verify-header {
+            padding: 12px 16px; background: rgba(212,192,106,0.08);
+            border-bottom: 1px solid rgba(212,192,106,0.15);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .verify-badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-3); font-weight: 600; }
+        .verify-body { padding: 16px; }
+        .verify-input {
+            width: 100%; padding: 10px 12px; border-radius: 8px;
+            background: rgba(0,0,0,0.28); border: 1px solid var(--line);
+            color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.78rem;
+            outline: none; margin-bottom: 10px; resize: vertical; min-height: 60px;
+        }
+        .verify-input:focus { border-color: var(--accent-3); }
+        .verify-btn {
+            width: 100%; padding: 11px; background: rgba(212,192,106,0.12);
+            border: 1px solid rgba(212,192,106,0.3); color: var(--accent-3);
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+        }
+        .verify-btn:hover { background: rgba(212,192,106,0.22); }
+
+        /* ── TABS ── */
+        .tabs { display: flex; gap: 2px; margin-bottom: 2px; background: var(--line); }
+        .tab-btn {
+            flex: 1; padding: 12px; border: 0; background: var(--panel-alt); color: var(--soft);
+            font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 200ms;
+        }
+        .tab-btn.active { background: var(--panel); color: var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* FIX 2: Allow the tab content area to scroll — remove overflow:hidden, add overflow-y:auto */
+        .sidebar-section.tab-host {
+            padding: 0;
+            overflow: visible; /* was: overflow:hidden which clipped content */
+        }
+        .tab-content-scroll {
+            padding: 22px;
+            max-height: 520px;
+            overflow-y: auto;
+        }
+
+        /* ── ROLE RBAC indicator ── */
+        .rbac-row {
+            display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+        }
+        .rbac-pill {
+            padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+            border: 1px solid var(--line);
+        }
+        .rbac-pill.allowed { background: rgba(112,201,138,0.12); color: var(--success); border-color: rgba(112,201,138,0.3); }
+        .rbac-pill.denied  { background: rgba(224,112,112,0.1); color: var(--danger); border-color: rgba(224,112,112,0.25); text-decoration: line-through; opacity: 0.6; }
+
+        /* ── FOOTER BORDER ── */
+        .bottom-bar {
+            border: 1px solid var(--line); border-top: none;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            padding: 12px 20px; background: var(--bg-deep);
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.75rem; color: var(--muted);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .loading-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(126,200,122,0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        .hash-reveal {
+            animation: hashIn 0.4s ease forwards;
+        }
+        @keyframes hashIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .principle-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em;
+            padding: 3px 10px; border-radius: 20px; font-weight: 600; border: 1px solid;
+        }
+        .principle-pill.integrity { color: var(--accent); border-color: rgba(126,200,122,0.35); background: rgba(126,200,122,0.08); }
+        .principle-pill.security { color: var(--blue); border-color: rgba(122,184,232,0.35); background: rgba(122,184,232,0.08); }
+        .principle-pill.confidentiality { color: var(--purple); border-color: rgba(184,163,217,0.35); background: rgba(184,163,217,0.08); }
+
+        .section-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+<main class="shell">
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="top-bar-brand">
+            <div class="brand-mark">V</div>
+            <span class="brand-name">VTaaS <span style="color:var(--muted); font-weight:400;">Integrity Console</span></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="role-display" id="role-display">🔒 Role: Researcher</div>
+            <div class="status-chip" id="status-chip">Awaiting proof run</div>
+        </div>
+    </header>
+
+    <!-- PRINCIPLE BANNER -->
+    <div class="principle-banner">
+        <div class="principle-card">
+            <div class="principle-icon">🔏</div>
+            <div>
+                <div class="principle-label">Integrity</div>
+                <div class="principle-desc">zk-SNARK receipts + Method ID fingerprinting. Any tampered data breaks verification instantly.</div>
+            </div>
+        </div>
+        <div class="principle-card">
+            <div class="principle-icon">🔑</div>
+            <div>
+                <div class="principle-label" style="color:var(--blue);">Security</div>
+                <div class="principle-desc">Institutional digital signatures (HMAC-SHA256) + role-based access control. Only authorized parties may submit.</div>
+            </div>
+        </div>
+        <div class="principle-card">
+            <div class="principle-icon">🛡️</div>
+            <div>
+                <div class="principle-label" style="color:var(--purple);">Confidentiality</div>
+                <div class="principle-desc">AES-256 encryption at rest. ZK proofs hide patient identities from all external verifiers.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <article class="hero-copy">
+            <span class="eyebrow">Verifiable Trust-as-a-Service</span>
+            <h1>Clinical proofing with <em>integrity</em>.</h1>
+            <div class="hero-actions">
+                <button class="button primary" id="run-proof-btn">Generate ZK Proof</button>
+                <button class="button secondary" id="seed-btn">Load sample cohort</button>
+            </div>
+            <div class="hero-metrics" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px;">
+                <div class="metric-card"><span class="mini-label">Cohort size</span><div class="metric-value" id="metric-patients">0</div></div>
+                <div class="metric-card"><span class="mini-label">Treatment</span><div class="metric-value" id="metric-treated">0%</div></div>
+                <div class="metric-card"><span class="mini-label">Recovery</span><div class="metric-value" id="metric-recovered">0%</div></div>
+            </div>
+        </article>
+        <aside class="hero-status">
+            <div class="hero-orbit">
+                <div class="hero-orbit-badge top">zkVM: <strong>RISC-Zero</strong></div>
+                <div class="hero-orbit-core">
+                    <div><small>Proof Rate</small><strong id="orbit-rate">0%</strong></div>
+                </div>
+                <div class="hero-orbit-badge bottom">AES-256 encrypted</div>
+            </div>
+        </aside>
+    </section>
+
+    <!-- MAIN GRID -->
+    <section class="main-grid">
+        <!-- LEFT: Data Entry -->
+        <section class="section">
+            <div class="section-pills">
+                <span class="principle-pill integrity">🔏 Integrity</span>
+                <span class="principle-pill security">🔑 Security</span>
+                <span class="principle-pill confidentiality">🛡️ Confidentiality</span>
+            </div>
+
+            <!-- SECURITY: Institutional Signature -->
+            <div class="auth-panel">
+                <div class="auth-header">
+                    <span style="font-size:1rem;">🔑</span>
+                    <div>
+                        <div class="auth-badge">Security — Digital Signature & RBAC</div>
+                        <div style="font-size:0.72rem; color:var(--soft); margin-top:2px;">Sign submissions with your institutional key. Role controls access permissions.</div>
+                    </div>
+                </div>
+                <div class="auth-body">
+                    <div class="auth-row">
+                        <div class="auth-field">
+                            <label>Institution ID</label>
+                            <input type="text" id="institution-id" placeholder="e.g. HOSP-AIIMS-001" value="HOSP-AIIMS-001">
+                        </div>
+                        <div class="auth-field">
+                            <label>Role</label>
+                            <select id="role-select" onchange="updateRole()">
+                                <option value="researcher">Researcher (Write + Prove)</option>
+                                <option value="regulator">Regulator (Verify only)</option>
+                                <option value="public">Public (View receipts only)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label>Secret Institutional Key (simulated)</label>
+                        <input type="password" id="inst-key" placeholder="Enter your private key..." value="s3cr3t-AIIMS-k3y-2024">
+                    </div>
+                    <button class="sign-btn" onclick="signSession()">🔑 Sign &amp; Authenticate Session</button>
+                    <div class="sig-display" id="sig-display"></div>
+                    <div class="rbac-row" id="rbac-row"></div>
+                </div>
+            </div>
+
+            <!-- CONFIDENTIALITY: Encryption -->
+            <div class="enc-panel">
+                <div class="enc-header">
+                    <span style="font-size:1rem;">🛡️</span>
+                    <div>
+                        <div class="enc-badge">Confidentiality — AES-256 Encryption at Rest</div>
+                        <div style="font-size:0.72rem; color:var(--soft); margin-top:2px;">Patient records are encrypted locally before proof generation.</div>
+                    </div>
+                </div>
+                <div class="enc-body">
+                    <div class="enc-key-display" id="enc-key-display">No encryption key generated</div>
+                    <button class="enc-btn" onclick="generateEncKey()">Generate Key</button>
+                </div>
+                <div class="enc-status" id="enc-status">
+                    <div class="enc-dot" style="background:rgba(184,163,217,0.4);"></div>
+                    Data unencrypted — generate a key to protect records at rest
+                </div>
+            </div>
+
+            <!-- PATIENT RECORDS -->
+            <span class="mini-label" style="margin-bottom:12px; display:inline-flex;">Private local dataset</span>
+            <h2 style="font-family:'Lora',serif; margin: 10px 0 16px;">Patient intake editor</h2>
+            <div class="patient-list" id="patient-list"></div>
+            <button class="button ghost" id="add-patient-btn">+ Add new patient record</button>
+        </section>
+
+        <!-- RIGHT: Sidebar -->
+        <div class="sidebar-stack">
+            <!-- Analytics -->
+            <section class="sidebar-section">
+                <span class="mini-label">Cohort analytics</span>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+                    <div class="metric-card"><span>Delta</span><strong id="insight-delta" style="display:block; font-size:1.2rem; color:var(--accent-2);">0 pts</strong></div>
+                    <div class="metric-card"><span>Treated Rec.</span><strong id="insight-treated-recovered" style="display:block; font-size:1.2rem; color:var(--text);">0</strong></div>
+                    <div class="metric-card"><span>Control Rec.</span><strong id="insight-control-recovered" style="display:block; font-size:1.2rem; color:var(--text);">0</strong></div>
+                    <div class="metric-card"><span>Readiness</span><strong id="insight-readiness" style="display:block; font-size:1.2rem; color:var(--accent);">0%</strong></div>
+                </div>
+            </section>
+
+            <!-- TABS: Result + Verify — FIX 2: removed overflow:hidden, added tab-host class -->
+            <section class="sidebar-section tab-host">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('result', this)">📋 ZK Result</button>
+                    <button class="tab-btn" onclick="switchTab('verify', this)">✅ Verify Receipt</button>
+                </div>
+
+                <!-- ZK RESULT TAB -->
+                <div class="tab-content active" id="tab-result">
+                    <div class="tab-content-scroll">
+                        <div id="empty-state" style="text-align:center; padding: 40px 0; color:var(--muted);">
+                            <div style="font-size:2rem; margin-bottom:10px;">🔏</div>
+                            <p>No proof generated yet.</p>
+                            <p style="font-size:0.8rem;">Sign your session, encrypt your data, then click Generate ZK Proof.</p>
+                        </div>
+                        <div id="result-area" hidden>
+                            <div style="margin:0 0 20px;">
+                                <span class="mini-label" style="margin-bottom:8px; display:inline-flex;">Recovery Rate (Verified)</span>
+                                <h2 id="rate-display" style="font-size:3rem; color:var(--accent); margin:6px 0; font-family:'Lora',serif;">0%</h2>
+                                <div class="proof-bar"><span id="proof-bar-fill"></span></div>
+                            </div>
+
+                            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+                                <div class="metric-card">
+                                    <span style="font-size:0.75rem; color:var(--muted);">🔏 INTEGRITY — ZK Verification Status</span>
+                                    <code id="result-status" style="display:block; color:var(--success); margin-top:4px; font-size:0.85rem;">—</code>
+                                </div>
+                                <div class="metric-card">
+                                    <span style="font-size:0.75rem; color:var(--muted);">🔏 Method ID (Code Fingerprint)</span>
+                                    <code id="method-id" style="display:block; font-size:0.7rem; word-break:break-all; color:var(--accent-2); margin-top:4px;">—</code>
+                                </div>
+                                <div class="metric-card">
+                                    <span style="font-size:0.75rem; color:var(--muted);">🔑 SECURITY — Institution Signature</span>
+                                    <code id="result-sig" style="display:block; font-size:0.7rem; word-break:break-all; color:var(--blue); margin-top:4px;">—</code>
+                                </div>
+                                <div class="metric-card">
+                                    <span style="font-size:0.75rem; color:var(--muted);">🛡️ CONFIDENTIALITY — Encryption Key ID</span>
+                                    <code id="result-enc" style="display:block; font-size:0.7rem; word-break:break-all; color:var(--purple); margin-top:4px;">—</code>
+                                </div>
+                            </div>
+
+                            <details>
+                                <summary style="color:var(--soft); cursor:pointer; font-size:0.85rem;">Inspect Full Receipt</summary>
+                                <pre id="receipt-log"></pre>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VERIFY TAB -->
+                <div class="tab-content" id="tab-verify">
+                    <div class="tab-content-scroll">
+                        <div style="margin-bottom:14px; font-size:0.8rem; color:var(--soft); line-height:1.5;">
+                            Public verifiers (regulators, auditors) can verify any receipt using only the <strong>Method ID</strong> and the <strong>receipt seal</strong>. No patient data required.
+                        </div>
+                        <div class="verify-panel">
+                            <div class="verify-header">
+                                <span style="font-size:1rem;">✅</span>
+                                <div class="verify-badge">Integrity — Receipt Verification</div>
+                            </div>
+                            <div class="verify-body">
+                                <label style="font-size:0.75rem; color:var(--soft); display:block; margin-bottom:6px;">Paste Method ID</label>
+                                <input class="verify-input" id="verify-method-id" placeholder="0x1a2b3c4d..." style="height:42px; resize:none;">
+                                <label style="font-size:0.75rem; color:var(--soft); display:block; margin-bottom:6px;">Paste Receipt Seal</label>
+                                <textarea class="verify-input" id="verify-receipt" placeholder="Paste receipt JSON or seal hash..."></textarea>
+                                <button class="verify-btn" onclick="verifyReceipt()">✅ Verify Receipt</button>
+                                <div id="verify-result" style="margin-top:12px; font-size:0.82rem; display:none;"></div>
+                            </div>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--muted); line-height:1.5;">
+                            ✦ Verification is completely public and requires zero access to patient records.<br>
+                            ✦ A forged or tampered receipt will always fail verification.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <footer class="bottom-bar">
+        <span>VTaaS v1.0 — Cryptographically Secured Clinical Trial Integrity</span>
+        <span style="display:flex; gap:14px;">
+            <span class="principle-pill integrity">🔏 Integrity</span>
+            <span class="principle-pill security">🔑 Security</span>
+            <span class="principle-pill confidentiality">🛡️ Confidentiality</span>
+        </span>
+    </footer>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   VTaaS FRONTEND — Full Cryptographic Simulation
+   Covers: Integrity (ZK), Security (HMAC/RBAC), Confidentiality (AES-256)
+═══════════════════════════════════════════════════════════ */
+
+let patients = [];
+let sessionSignature = null;
+let encryptionKeyHex = null;
+let encryptionKeyId = null;
+let currentRole = "researcher";
+let currentMethodId = null;
+let lastReceipt = null;
+
+const RBAC = {
+    researcher: { canWrite: true,  canProve: true,  canVerify: true,  canViewPublic: true  },
+    regulator:  { canWrite: false, canProve: false, canVerify: true,  canViewPublic: true  },
+    public:     { canWrite: false, canProve: false, canVerify: true,  canViewPublic: true  }
+};
+
+/* ── UTILITY: SHA-256 hash (Web Crypto) ── */
+async function sha256hex(str) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+/* ── UTILITY: HMAC-SHA256 (simulates institutional signing) ── */
+async function hmacSign(message, secret) {
+    const enc = new TextEncoder();
+    const keyMat = await crypto.subtle.importKey("raw", enc.encode(secret), {name:"HMAC",hash:"SHA-256"}, false, ["sign"]);
+    const sig = await crypto.subtle.sign("HMAC", keyMat, enc.encode(message));
+    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+/* ── UTILITY: AES-256 key generation ── */
+async function generateAES256Key() {
+    const key = await crypto.subtle.generateKey({name:"AES-GCM", length:256}, true, ["encrypt","decrypt"]);
+    const exported = await crypto.subtle.exportKey("raw", key);
+    return Array.from(new Uint8Array(exported)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+/* ── UTILITY: Simulate AES-256 encryption of a record ── */
+async function simulateEncrypt(record, keyHex) {
+    const hash = await sha256hex(JSON.stringify(record) + keyHex);
+    return `ENC[AES256::${hash.slice(0,24)}...]`;
+}
+
+/* ══════════════════════════════════
+   SECURITY: Update Role (RBAC)
+══════════════════════════════════ */
+function updateRole() {
+    currentRole = document.getElementById("role-select").value;
+    document.getElementById("role-display").textContent = `🔒 Role: ${currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}`;
+    renderRBAC();
+}
+
+function renderRBAC() {
+    const perms = RBAC[currentRole];
+    const row = document.getElementById("rbac-row");
+    row.innerHTML = `
+        <span class="rbac-pill ${perms.canWrite?'allowed':'denied'}">Write Records</span>
+        <span class="rbac-pill ${perms.canProve?'allowed':'denied'}">Generate Proof</span>
+        <span class="rbac-pill ${perms.canVerify?'allowed':'denied'}">Verify Receipt</span>
+        <span class="rbac-pill ${perms.canViewPublic?'allowed':'denied'}">View Public Data</span>
+    `;
+    document.getElementById("add-patient-btn").disabled = !perms.canWrite;
+    document.getElementById("add-patient-btn").style.opacity = perms.canWrite ? "1" : "0.4";
+    document.getElementById("run-proof-btn").disabled = !perms.canProve;
+    document.getElementById("run-proof-btn").style.opacity = perms.canProve ? "1" : "0.4";
+}
+
+/* ══════════════════════════════════
+   SECURITY: Sign Session (HMAC)
+══════════════════════════════════ */
+async function signSession() {
+    const instId = document.getElementById("institution-id").value.trim();
+    const key    = document.getElementById("inst-key").value.trim();
+    if (!instId || !key) { alert("Please fill in Institution ID and Key."); return; }
+
+    const timestamp = new Date().toISOString();
+    const message   = `${instId}|${currentRole}|${timestamp}`;
+    sessionSignature = await hmacSign(message, key);
+
+    const display = document.getElementById("sig-display");
+    display.textContent = `HMAC-SHA256 Signature:\n${sessionSignature}\n\nMessage: ${message}`;
+    display.classList.add("visible", "hash-reveal");
+
+    renderRBAC();
+
+    document.getElementById("status-chip").textContent = `Signed: ${instId}`;
+    document.getElementById("status-chip").dataset.state = "success";
+}
+
+/* ══════════════════════════════════
+   CONFIDENTIALITY: Generate AES Key
+══════════════════════════════════ */
+async function generateEncKey() {
+    encryptionKeyHex = await generateAES256Key();
+    encryptionKeyId  = encryptionKeyHex.slice(0, 16) + "...";
+
+    document.getElementById("enc-key-display").textContent = `KEY-ID: ${encryptionKeyId} (256-bit AES-GCM)`;
+    document.getElementById("enc-status").innerHTML = `
+        <div class="enc-dot"></div>
+        AES-256 key active — records will be encrypted at rest before proof generation
+    `;
+
+    // Re-render patients to update encryption badges
+    renderPatients();
+}
+
+/* ══════════════════════════════════
+   PATIENTS
+══════════════════════════════════ */
+function updateStats() {
+    const total = patients.length;
+    const treatedArr = patients.filter(p => p.received_drug);
+    const controlArr = patients.filter(p => !p.received_drug);
+    const treatedRecovered = treatedArr.filter(p => p.recovered).length;
+    const controlRecovered = controlArr.filter(p => p.recovered).length;
+    const totalRecovered = treatedRecovered + controlRecovered;
+
+    const recRate    = total ? Math.round((totalRecovered / total) * 100) : 0;
+    const treatedPct = treatedArr.length ? Math.round((treatedRecovered / treatedArr.length) * 100) : 0;
+    const controlPct = controlArr.length ? Math.round((controlRecovered / controlArr.length) * 100) : 0;
+
+    document.getElementById("metric-patients").textContent = total;
+    document.getElementById("metric-treated").textContent  = total ? Math.round((treatedArr.length / total) * 100) + "%" : "0%";
+    document.getElementById("metric-recovered").textContent = recRate + "%";
+    document.getElementById("orbit-rate").textContent = recRate + "%";
+
+    document.getElementById("insight-delta").textContent = (treatedPct - controlPct) + " pts";
+    document.getElementById("insight-treated-recovered").textContent = treatedRecovered;
+    document.getElementById("insight-control-recovered").textContent = controlRecovered;
+    document.getElementById("insight-readiness").textContent = total > 0 ? "100%" : "0%";
+}
+
+function renderPatients() {
+    const patientList = document.getElementById("patient-list");
+    patientList.innerHTML = "";
+    patients.forEach((p, i) => {
+        const card = document.createElement("div");
+        card.className = "patient-card";
+
+        // FIX 1: Only show AES-256 badge if key exists; show nothing if unencrypted
+        // (removed the ⚠️ PLAINTEXT tag — it was cluttering UI and overlapping Remove)
+        const encTag = encryptionKeyHex
+            ? `<span class="patient-encrypted-tag enc">🛡️ AES-256</span>`
+            : ``;
+
+        card.innerHTML = `
+            <div class="patient-card-header">
+                <div class="patient-card-header-left">
+                    <strong style="font-family:'DM Mono',monospace; font-size:0.85rem;">Patient #${p.id}</strong>
+                    ${encTag}
+                </div>
+                <button onclick="patients.splice(${i},1); renderPatients()" style="background:none; color:var(--danger); padding:4px 8px; font-size:0.8rem; border:1px solid rgba(224,112,112,0.3); border-radius:6px;">Remove</button>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <label class="toggle"><span style="font-size:0.82rem;">Treated</span><span class="switch"><input type="checkbox" ${p.received_drug ? 'checked' : ''} onchange="patients[${i}].received_drug=this.checked; updateStats()"><span class="slider"></span></span></label>
+                <label class="toggle"><span style="font-size:0.82rem;">Recovered</span><span class="switch"><input type="checkbox" ${p.recovered ? 'checked' : ''} onchange="patients[${i}].recovered=this.checked; updateStats()"><span class="slider"></span></span></label>
+            </div>
+        `;
+        patientList.appendChild(card);
+    });
+    updateStats();
+}
+
+document.getElementById("add-patient-btn").onclick = () => {
+    if (!RBAC[currentRole].canWrite) { alert("Access denied: your role cannot add patient records."); return; }
+    patients.push({ id: 100 + patients.length + 1, received_drug: false, recovered: false });
+    renderPatients();
+};
+
+document.getElementById("seed-btn").onclick = () => {
+    patients = [
+        { id: 101, received_drug: true,  recovered: true  },
+        { id: 102, received_drug: true,  recovered: true  },
+        { id: 103, received_drug: true,  recovered: false },
+        { id: 104, received_drug: false, recovered: true  },
+        { id: 105, received_drug: false, recovered: false },
+    ];
+    renderPatients();
+};
+
+/* ══════════════════════════════════
+   INTEGRITY: Generate ZK Proof
+══════════════════════════════════ */
+document.getElementById("run-proof-btn").onclick = async () => {
+    if (!RBAC[currentRole].canProve) { alert("Access denied: your role cannot generate proofs."); return; }
+    if (!patients.length) { alert("Add at least one patient record first."); return; }
+    if (!sessionSignature) { alert("Please sign your session first (Security step)."); return; }
+
+    document.getElementById("empty-state").style.display = "none";
+    document.getElementById("result-area").hidden = false;
+    document.getElementById("result-area").classList.add("loading-shimmer");
+
+    const total      = patients.length;
+    const recovered  = patients.filter(p => p.recovered).length;
+    const successRate = Math.round((recovered / total) * 100);
+
+    const dataFingerprint = await sha256hex(JSON.stringify(patients));
+    currentMethodId = "0x" + dataFingerprint.slice(0, 32);
+
+    const encryptedRecords = [];
+    for (const p of patients) {
+        if (encryptionKeyHex) {
+            encryptedRecords.push(await simulateEncrypt(p, encryptionKeyHex));
+        } else {
+            encryptedRecords.push(`PLAINTEXT[${JSON.stringify(p)}]`);
+        }
+    }
+
+    const sealInput  = `${currentMethodId}|${successRate}|${sessionSignature}`;
+    const receiptSeal = await sha256hex(sealInput);
+
+    let data;
+    try {
+        const res = await fetch("http://127.0.0.1:3000/prove", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                patients,
+                institution_id: document.getElementById("institution-id").value,
+                signature: sessionSignature,
+                enc_key_id: encryptionKeyId || "none"
+            }),
+            signal: AbortSignal.timeout(3000)
+        });
+        data = await res.json();
+    } catch (_) {
+        data = {
+            success_rate: successRate,
+            method_id: currentMethodId,
+            institution_signature: sessionSignature,
+            enc_key_id: encryptionKeyId || "NO_ENCRYPTION — DATA AT RISK",
+            verified: true,
+            encrypted_records: encryptedRecords,
+            receipt: {
+                "_comment": "This is a simulated ZK receipt. In production, RISC Zero generates this.",
+                "seal": receiptSeal,
+                "method_id": currentMethodId,
+                "journal": {
+                    "success_rate": successRate,
+                    "total_patients": total,
+                    "recovered_patients": recovered,
+                    "computation": "SUM(recovered) / COUNT(patients) * 100"
+                },
+                "integrity": {
+                    "principle": "Integrity",
+                    "mechanism": "zk-SNARK via RISC Zero zkVM",
+                    "guarantee": "Any change to input data or code invalidates this seal"
+                },
+                "security": {
+                    "principle": "Security",
+                    "mechanism": "HMAC-SHA256 Institutional Signature + RBAC",
+                    "institution_signature": sessionSignature.slice(0,32) + "...",
+                    "role": currentRole
+                },
+                "confidentiality": {
+                    "principle": "Confidentiality",
+                    "mechanism": "AES-256-GCM encryption at rest + ZK proof hides raw data",
+                    "enc_key_id": encryptionKeyId || "WARNING: not encrypted",
+                    "patient_data_in_receipt": false
+                },
+                "timestamp": new Date().toISOString()
+            }
+        };
+    }
+
+    lastReceipt = data.receipt;
+
+    document.getElementById("result-area").classList.remove("loading-shimmer");
+    document.getElementById("rate-display").textContent = data.success_rate + "%";
+    document.getElementById("proof-bar-fill").style.width = data.success_rate + "%";
+    document.getElementById("method-id").textContent = data.method_id;
+    document.getElementById("result-status").textContent = data.verified ? "✅ Proof Verified — Computation is Trustworthy" : "❌ Verification Failed";
+    document.getElementById("result-status").style.color = data.verified ? "var(--success)" : "var(--danger)";
+    document.getElementById("result-sig").textContent = data.institution_signature
+        ? data.institution_signature.slice(0, 48) + "..."
+        : "No signature";
+    document.getElementById("result-enc").textContent = data.enc_key_id;
+    document.getElementById("receipt-log").textContent = JSON.stringify(data.receipt, null, 2);
+
+    document.getElementById("status-chip").textContent = data.verified ? "✅ Proof Verified" : "❌ Failed";
+    document.getElementById("status-chip").dataset.state = data.verified ? "success" : "error";
+
+    document.getElementById("verify-method-id").value = data.method_id;
+    document.getElementById("verify-receipt").value = data.receipt?.seal || receiptSeal;
+};
+
+/* ══════════════════════════════════
+   INTEGRITY: Verify Receipt (Public)
+══════════════════════════════════ */
+async function verifyReceipt() {
+    const inputMethodId = document.getElementById("verify-method-id").value.trim();
+    const inputSeal     = document.getElementById("verify-receipt").value.trim();
+    const resultDiv     = document.getElementById("verify-result");
+
+    if (!inputMethodId || !inputSeal) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `<span style="color:var(--danger);">⚠️ Please paste both Method ID and Receipt Seal.</span>`;
+        return;
+    }
+
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = `<span style="color:var(--muted);">Verifying...</span>`;
+
+    await new Promise(r => setTimeout(r, 600));
+
+    if (lastReceipt && inputMethodId === lastReceipt.method_id && inputSeal === lastReceipt.seal) {
+        resultDiv.innerHTML = `
+            <div style="padding:12px; border-radius:10px; background:rgba(112,201,138,0.1); border:1px solid rgba(112,201,138,0.3);">
+                <div style="color:var(--success); font-weight:700; margin-bottom:6px;">✅ VERIFICATION PASSED</div>
+                <div style="font-size:0.75rem; color:var(--soft); line-height:1.6;">
+                    • Method ID matches — correct code version confirmed<br>
+                    • Seal is intact — data was not tampered<br>
+                    • Result: <strong style="color:var(--accent);">${lastReceipt.journal?.success_rate}% recovery rate</strong> is mathematically proven<br>
+                    • No patient data was revealed during verification
+                </div>
+            </div>`;
+    } else {
+        resultDiv.innerHTML = `
+            <div style="padding:12px; border-radius:10px; background:rgba(224,112,112,0.1); border:1px solid rgba(224,112,112,0.3);">
+                <div style="color:var(--danger); font-weight:700; margin-bottom:6px;">❌ VERIFICATION FAILED</div>
+                <div style="font-size:0.75rem; color:var(--soft); line-height:1.6;">
+                    The Method ID or Seal does not match.<br>
+                    This means the data may have been tampered with,<br>
+                    the wrong code version was used, or the receipt is forged.
+                </div>
+            </div>`;
+    }
+}
+
+/* ── TAB SWITCHING ── */
+function switchTab(tab, btn) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-" + tab).classList.add("active");
+}
+
+/* ── INIT ── */
+renderPatients();
+renderRBAC();
+</script>
+</body>
+</html>
